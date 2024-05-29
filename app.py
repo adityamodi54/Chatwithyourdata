@@ -3,6 +3,9 @@ import pandas as pd
 import PyPDF2
 import docx
 import openai
+import json
+import os
+from datetime import datetime
 
 # Function to read PDF files
 def read_pdf(file):
@@ -42,11 +45,31 @@ def extract_text(file):
     else:
         return "Unsupported file type"
 
+# Load request count
+def load_request_count():
+    if os.path.exists("request_count.json"):
+        with open("request_count.json", "r") as f:
+            return json.load(f)
+    return {"date": str(datetime.now().date()), "count": 0}
+
+# Save request count
+def save_request_count(data):
+    with open("request_count.json", "w") as f:
+        json.dump(data, f)
+
 # Streamlit app layout
 st.title("Document Question Answering App")
 
-# Debugging: Check available secrets
-st.write("Available secrets:", st.secrets)
+# Load the current request count
+request_data = load_request_count()
+current_date = str(datetime.now().date())
+
+if request_data["date"] != current_date:
+    request_data = {"date": current_date, "count": 0}
+    save_request_count(request_data)
+
+# Display the remaining requests
+st.write(f"Remaining requests for today: {20 - request_data['count']}")
 
 uploaded_file = st.file_uploader("Upload a document", type=["pdf", "docx", "xlsx", "txt"])
 
@@ -58,22 +81,25 @@ if uploaded_file is not None:
 
     if st.button("Get Answer"):
         if question:
-            try:
-                # Correct way to access the API key
-                openai.api_key = st.secrets["openai_api_key"]
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
-                        {"role": "system", "content": "You are a helpful assistant."},
-                        {"role": "user", "content": f"Document text: {document_text}\n\nQuestion: {question}"}
-                    ],
-                    max_tokens=150
-                )
-                answer = response.choices[0].message['content'].strip()
-                st.write(f"Answer: {answer}")
-            except KeyError:
-                st.error("The API key was not found in Streamlit secrets.")
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
+            if request_data["count"] < 20:
+                try:
+                    openai.api_key = st.secrets["openai_api_key"]
+                    response = openai.Completion.create(
+                        model="text-davinci-003",
+                        prompt=f"Document text: {document_text}\n\nQuestion: {question}\n\nAnswer:",
+                        max_tokens=150
+                    )
+                    answer = response.choices[0].text.strip()
+                    st.write(f"Answer: {answer}")
+                    
+                    # Increment and save the request count
+                    request_data["count"] += 1
+                    save_request_count(request_data)
+                except KeyError:
+                    st.error("The API key was not found in Streamlit secrets.")
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
+            else:
+                st.error("You have reached the maximum number of requests for today.")
         else:
             st.write("Please ask a question.")
