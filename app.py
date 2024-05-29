@@ -55,7 +55,7 @@ if uploaded_file is not None:
 
     if st.button("Get Answer"):
         if question:
-            openai.api_key = st.secrets["openai_api_key"]
+            openai.api_key = st.secrets["secrets"]["openai_api_key"]
             response = openai.Completion.create(
                 engine="davinci",
                 prompt=f"Document text: {document_text}\n\nQuestion: {question}\n\nAnswer:",
