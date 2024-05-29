@@ -64,7 +64,7 @@ if uploaded_file is not None:
                 )
                 answer = response.choices[0].text.strip()
                 st.write(f"Answer: {answer}")
-            except openai.error.OpenAIError as e:
+            except Exception as e:
                 st.error(f"An error occurred: {e}")
         else:
             st.write("Please ask a question.")
