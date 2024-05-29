@@ -59,8 +59,9 @@ if uploaded_file is not None:
     if st.button("Get Answer"):
         if question:
             try:
-                # Access the API key correctly
-                openai.api_key = st.secrets["openai_api_key"]
+                # Correct way to access the API key
+                openai_api_key = st.secrets.get("openai_api_key") or st.secrets["secrets"]["openai_api_key"]
+                openai.api_key = openai_api_key
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[
