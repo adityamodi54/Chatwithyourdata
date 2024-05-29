@@ -55,8 +55,10 @@ if uploaded_file is not None:
 
     if st.button("Get Answer"):
         if question:
-            openai.api_key = st.secrets["openai_api_key"]
             try:
+                # Debugging: Print available secrets
+                st.write(st.secrets)
+                openai.api_key = st.secrets["openai_api_key"]
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[
@@ -67,6 +69,8 @@ if uploaded_file is not None:
                 )
                 answer = response.choices[0].message['content'].strip()
                 st.write(f"Answer: {answer}")
+            except KeyError:
+                st.error("The API key was not found in Streamlit secrets.")
             except Exception as e:
                 st.error(f"An error occurred: {e}")
         else:
