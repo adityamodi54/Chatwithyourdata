@@ -55,14 +55,17 @@ if uploaded_file is not None:
 
     if st.button("Get Answer"):
         if question:
-            openai.api_key = st.secrets["secrets"]["openai_api_key"]
+            openai.api_key = st.secrets["openai_api_key"]
             try:
-                response = openai.Completion.create(
-                    model="text-davinci-003",
-                    prompt=f"Document text: {document_text}\n\nQuestion: {question}\n\nAnswer:",
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant."},
+                        {"role": "user", "content": f"Document text: {document_text}\n\nQuestion: {question}"}
+                    ],
                     max_tokens=150
                 )
-                answer = response.choices[0].text.strip()
+                answer = response.choices[0].message['content'].strip()
                 st.write(f"Answer: {answer}")
             except Exception as e:
                 st.error(f"An error occurred: {e}")
