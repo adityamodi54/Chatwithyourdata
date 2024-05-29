@@ -6,10 +6,10 @@ import openai
 
 # Function to read PDF files
 def read_pdf(file):
-    pdf_reader = PyPDF2.PdfFileReader(file)
+    pdf_reader = PyPDF2.PdfReader(file)
     text = ""
-    for page in range(pdf_reader.numPages):
-        text += pdf_reader.getPage(page).extract_text()
+    for page in pdf_reader.pages:
+        text += page.extract_text()
     return text
 
 # Function to read DOCX files
