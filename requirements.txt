@@ -5,3 +5,4 @@ PyPDF2==1.26.0
 openai==0.10.2
 xlrd==2.0.1
 toml==0.10.2
+numpy==1.21.0
