@@ -45,6 +45,9 @@ def extract_text(file):
 # Streamlit app layout
 st.title("Document Question Answering App")
 
+# Debugging: Check available secrets
+st.write("Available secrets:", st.secrets)
+
 uploaded_file = st.file_uploader("Upload a document", type=["pdf", "docx", "xlsx", "txt"])
 
 if uploaded_file is not None:
@@ -56,8 +59,6 @@ if uploaded_file is not None:
     if st.button("Get Answer"):
         if question:
             try:
-                # Debugging: Print available secrets
-                st.write(st.secrets)
                 openai.api_key = st.secrets["openai_api_key"]
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
