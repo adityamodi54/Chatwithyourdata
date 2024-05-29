@@ -56,12 +56,15 @@ if uploaded_file is not None:
     if st.button("Get Answer"):
         if question:
             openai.api_key = st.secrets["secrets"]["openai_api_key"]
-            response = openai.Completion.create(
-                engine="davinci",
-                prompt=f"Document text: {document_text}\n\nQuestion: {question}\n\nAnswer:",
-                max_tokens=150
-            )
-            answer = response.choices[0].text.strip()
-            st.write(f"Answer: {answer}")
+            try:
+                response = openai.Completion.create(
+                    model="text-davinci-003",
+                    prompt=f"Document text: {document_text}\n\nQuestion: {question}\n\nAnswer:",
+                    max_tokens=150
+                )
+                answer = response.choices[0].text.strip()
+                st.write(f"Answer: {answer}")
+            except openai.error.OpenAIError as e:
+                st.error(f"An error occurred: {e}")
         else:
             st.write("Please ask a question.")
